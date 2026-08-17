@@ -42,3 +42,12 @@ test("removes the disposable preview and protects confidential location data", a
   assert.match(services, /visibility: "Confidential"/);
   assert.doesNotMatch(services, /confidential-(?:willow|ikwe)[\s\S]{0,180}(?:address|latitude|longitude):/i);
 });
+
+test("describes the directory as reviewed rather than exhaustive", async () => {
+  const report = JSON.parse(
+    await readFile(new URL("../public/freshness-report.json", import.meta.url), "utf8"),
+  );
+
+  assert.match(report.statement, /reviewed directory/i);
+  assert.doesNotMatch(report.statement, /comprehensive/i);
+});

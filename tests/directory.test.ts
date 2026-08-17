@@ -145,3 +145,42 @@ test("published directory does not leak confidential location details", () => {
     assert.equal(location.longitude, undefined);
   }
 });
+
+test("published directory includes the verified West End audit locations", () => {
+  const expectedProgramIds = [
+    "wcwrc-supports",
+    "spence-community",
+    "dmsmri-community",
+    "west-broadway-community",
+    "one-just-city-west-broadway",
+    "broadway-neighbourhood-centre",
+    "west-end-cultural-centre",
+    "agape-table",
+    "art-city",
+    "west-broadway-youth-outreach",
+    "cmha-navigation",
+    "wrha-community-health",
+  ];
+
+  for (const programId of expectedProgramIds) {
+    assert.ok(
+      directoryData.programs.some((program) => program.id === programId),
+      `missing audited program ${programId}`,
+    );
+    assert.ok(
+      directoryData.locations.some(
+        (location) => location.programId === programId && location.visibility === "Public",
+      ),
+      `missing public location for ${programId}`,
+    );
+  }
+});
+
+test("published directory maps the WRHA community-health office network", () => {
+  const wrhaLocations = directoryData.locations.filter(
+    (location) => location.programId === "wrha-community-health",
+  );
+
+  assert.equal(wrhaLocations.length, 9);
+  assert.equal(new Set(wrhaLocations.map((location) => location.address)).size, 9);
+});

@@ -15,7 +15,7 @@ const topicCoverage = Object.fromEntries(
 
 const report = {
   generatedAt: "2026-08-16T12:00:00-05:00",
-  statement: "Comprehensive within the reviewed source set; services can change. Call before visiting.",
+  statement: "Reviewed directory of verified services; it is not exhaustive and services can change. Call before visiting.",
   organizations: directoryData.organizations.length,
   programs: directoryData.programs.length,
   publicLocations: directoryData.locations.filter((item) => item.visibility === "Public").length,
