@@ -1,0 +1,9 @@
+{
+  "name": "drizzle-kit",
+  "version": "0.31.11",
+  "type": "module",
+  "main": "./index.js",
+  "bin": {
+    "drizzle-kit": "./bin.js"
+  }
+}

@@ -8,8 +8,6 @@ import { distanceKm, filterPrograms, summarizeFreshness } from "../lib/directory
 import type { Coordinate, DirectoryData, Program, ServiceLocation, ServiceMethod, Topic } from "../lib/types";
 
 type Tab = "map" | "directory";
-type CrimeMetric = "Rate / 1,000" | "Raw count" | "12-month trend" | "Official density";
-
 const topicGroups: Array<{ label: string; topics: Topic[] }> = [
   { label: "Urgent & essential", topics: ["Emergency / Crisis", "Mental Health / Addictions", "Homelessness", "Food / Basic Needs", "Housing"] },
   { label: "People & identity", topics: ["Youth / Young Adults", "Older Adults", "2SLGBTQ+", "Indigenous", "Newcomers", "Parenting"] },
@@ -39,7 +37,6 @@ export function ResourceExplorer({ data }: { data: DirectoryData }) {
   const [method, setMethod] = useState<ServiceMethod | "All">("All");
   const [freeOnly, setFreeOnly] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [crimeMetric, setCrimeMetric] = useState<CrimeMetric>("Rate / 1,000");
   const [addressLabel, setAddressLabel] = useState("");
   const addressLabelRef = useRef("");
   const [pinInstruction, setPinInstruction] = useState("");
@@ -137,7 +134,7 @@ export function ResourceExplorer({ data }: { data: DirectoryData }) {
     <main className="app-shell" id="top">
       <header className="topbar">
         <a className="brand" href="#top" aria-label="Winnipeg Neighbourhood and Resource Map home"><span className="brand-mark">W</span><span><strong>Winnipeg</strong><small>Neighbourhood & resource map</small></span></a>
-        <div className="topbar-actions"><span className="verified-pill"><i /> Sources checked Aug 16, 2026</span><a href="#about">How to use</a></div>
+        <nav className="topbar-actions" aria-label="Primary navigation"><span className="verified-pill"><i /> Sources checked Aug 16, 2026</span><a href="/crime">Crime & recent activity</a><a href="#about">How to use</a></nav>
       </header>
 
       <section className="intro">
@@ -152,7 +149,7 @@ export function ResourceExplorer({ data }: { data: DirectoryData }) {
         <div className="privacy-note"><span>◇</span><p><strong>Private by design</strong>The label stays in this page. It is never sent to a lookup service or saved.</p></div>
       </section>
 
-      {propertyPin && <section className="property-context"><div><span>Property context</span><strong>{propertyPin.label}</strong><small>Public services below are ordered by straight-line distance.</small></div><div><span>{crimeMetric}</span><strong>Use the official police source</strong><small>Historical area data does not predict an individual property.</small></div><a href="https://www.winnipeg.ca/police/crime-prevention/crime-calls-service-map" target="_blank" rel="noreferrer">Open WPS CrimeMaps ↗</a></section>}
+      {propertyPin && <section className="property-context"><div><span>Property context</span><strong>{propertyPin.label}</strong><small>Public services below are ordered by straight-line distance.</small></div><div><span>Crime information</span><strong>Use generalized neighbourhood context</strong><small>Your property label and pin are not sent to Winnipeg Police.</small></div><a href="/crime">View crime & recent activity →</a></section>}
 
       <div className="workspace">
         <aside className="filters" aria-label="Directory filters">
@@ -167,7 +164,7 @@ export function ResourceExplorer({ data }: { data: DirectoryData }) {
           {topics.includes("Emergency / Crisis") && <div className="crisis-note"><strong>Crisis services are shown first.</strong> If someone is in immediate danger, call 911.</div>}
 
           {tab === "map" ? <div className="map-layout">
-            <div className="map-wrap"><div className="crime-controls"><span>Crime context</span>{(["Rate / 1,000", "Raw count", "12-month trend", "Official density"] as CrimeMetric[]).map((metric) => <button key={metric} className={crimeMetric === metric ? "active" : ""} onClick={() => setCrimeMetric(metric)}>{metric}</button>)}</div><div ref={mapNode} className="map" aria-label="Interactive map of public Winnipeg service locations" /><div className="map-key"><span><i className="key-service" /> Public service</span><span><i className="key-property" /> Property pin</span></div><div className="map-disclaimer"><strong>Information, not a safety score.</strong> Service proximity is never used to rate a property. Crime information is historical and does not predict what will happen at an address.</div></div>
+            <div className="map-wrap"><a className="crime-map-link" href="/crime">Crime & recent activity <span>→</span></a><div ref={mapNode} className="map" aria-label="Interactive map of public Winnipeg service locations" /><div className="map-key"><span><i className="key-service" /> Public service</span><span><i className="key-property" /> Property pin</span></div><div className="map-disclaimer"><strong>Information, not a safety score.</strong> Service proximity is never used to rate a property. Crime information is historical and does not predict what will happen at an address.</div></div>
             <div className="map-results"><div className="result-heading"><div><span className="eyebrow">{propertyPin ? "Nearest matches" : "Verified services"}</span><h2>{propertyPin ? "Near your property pin" : "Explore local support"}</h2></div><span>{visible.length} shown</span></div><div className="compact-cards">{visible.map((program) => <ProgramCard key={program.id} program={program} location={getLocation(program.id, data.locations)} compact selected={program.id === selectedId} onSelect={() => setSelectedId(program.id)} propertyPin={propertyPin} />)}</div>{visible.length === 0 && <EmptyState onClear={() => { setQuery(""); setTopics([]); }} />}</div>
           </div> : <div className="directory-view"><div className="directory-intro"><div><span className="eyebrow">Complete directory</span><h2>Support, sorted clearly</h2></div><p>One program can serve several needs. Topic tags explain every match without duplicating entries.</p></div><div className="directory-grid">{visible.map((program) => <ProgramCard key={program.id} program={program} location={getLocation(program.id, data.locations)} onSelect={() => setSelectedId(program.id)} propertyPin={propertyPin} />)}</div>{visible.length === 0 && <EmptyState onClear={() => { setQuery(""); setTopics([]); }} />}</div>}
         </section>

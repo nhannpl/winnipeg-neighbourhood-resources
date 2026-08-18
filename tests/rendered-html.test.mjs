@@ -2,16 +2,31 @@ import assert from "node:assert/strict";
 import { access, readFile } from "node:fs/promises";
 import test from "node:test";
 
-async function render() {
+async function render(path = "/") {
   const workerUrl = new URL("../dist/server/index.js", import.meta.url);
   workerUrl.searchParams.set("test", `${process.pid}-${Date.now()}`);
   const { default: worker } = await import(workerUrl.href);
   return worker.fetch(
-    new Request("http://localhost/", { headers: { accept: "text/html" } }),
+    new Request(`http://localhost${path}`, { headers: { accept: "text/html" } }),
     { ASSETS: { fetch: async () => new Response("Not found", { status: 404 }) } },
     { waitUntil() {}, passThroughOnException() {} },
   );
 }
+
+test("server-renders the official crime and recent activity page", async () => {
+  const response = await render("/crime");
+  assert.equal(response.status, 200);
+  const html = await response.text();
+
+  assert.match(html, /<title>Crime &amp; Recent Activity/);
+  assert.match(html, /Explore official Winnipeg Police Service crime and calls-for-service information/);
+  assert.match(html, /Crime &amp; Recent Activity/);
+  assert.match(html, /updated monthly/i);
+  assert.match(html, /previous 10 weeks/i);
+  assert.match(html, /generalized/i);
+  assert.match(html, /https:\/\/wps-crime-calls-for-service-wpsgis\.hub\.arcgis\.com\//);
+  assert.doesNotMatch(html, /\/og\.png/);
+});
 
 test("server-renders the Winnipeg resource map experience", async () => {
   const response = await render();
@@ -26,6 +41,8 @@ test("server-renders the Winnipeg resource map experience", async () => {
   assert.match(html, /Youth \/ Young Adults/);
   assert.match(html, /Emergency help/);
   assert.match(html, /Information, not a safety score/);
+  assert.match(html, /href="\/crime"/);
+  assert.doesNotMatch(html, /Rate \/ 1,000|Raw count|12-month trend|Official density/);
   assert.doesNotMatch(html, /Your site is taking shape|react-loading-skeleton|codex-preview/);
 });
 
