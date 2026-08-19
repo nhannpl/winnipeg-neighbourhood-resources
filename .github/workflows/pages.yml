@@ -25,6 +25,7 @@ jobs:
           bun-version: latest
 
       - run: bun install --backend=copyfile --cache-dir=/tmp/bun-cache
+      - run: node scripts/postinstall.mjs
       - run: bun run build
 
       - uses: actions/upload-pages-artifact@v5
