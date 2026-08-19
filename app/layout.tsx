@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { headers } from "next/headers";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -13,12 +12,7 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export async function generateMetadata(): Promise<Metadata> {
-  const requestHeaders = await headers();
-  const host = requestHeaders.get("host") ?? "localhost:3000";
-  const protocol = host.includes("localhost") ? "http" : "https";
-  const socialImage = `${protocol}://${host}/og.png`;
-
+export function generateMetadata(): Metadata {
   return {
     title: "Winnipeg Neighbourhood & Resource Map",
     description: "Verified community services, neighbourhood context, and private-by-design property lookup for Winnipeg.",
@@ -27,9 +21,9 @@ export async function generateMetadata(): Promise<Metadata> {
       title: "Winnipeg Neighbourhood & Resource Map",
       description: "Find the right support. Understand the neighbourhood.",
       type: "website",
-      images: [{ url: socialImage, width: 1536, height: 1024, alt: "Winnipeg Neighbourhood and Resource Map" }],
+      images: [{ url: "/og.png", width: 1536, height: 1024, alt: "Winnipeg Neighbourhood and Resource Map" }],
     },
-    twitter: { card: "summary_large_image", images: [socialImage] },
+    twitter: { card: "summary_large_image", images: ["/og.png"] },
   };
 }
 
