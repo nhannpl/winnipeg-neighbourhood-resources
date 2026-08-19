@@ -24,3 +24,4 @@ const html = `<!doctype html>
 
 await mkdir(clientDir, { recursive: true });
 await writeFile(path.join(clientDir, "index.html"), html);
+await writeFile(path.join(clientDir, ".nojekyll"), "");
